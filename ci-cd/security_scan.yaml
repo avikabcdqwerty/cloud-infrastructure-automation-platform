@@ -1,0 +1,61 @@
+name: Security Scan - Cloud Infrastructure Automation Platform
+
+on:
+  pull_request:
+    branches: [main, staging, dev]
+  workflow_dispatch:
+
+jobs:
+  bandit-code-scan:
+    name: Bandit Python Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit scan on API code
+        run: bandit -r api/ -ll --skip B101
+
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit.json
+
+  terraform-opa-security:
+    name: Terraform & OPA Policy Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform -chdir=iac/terraform init
+
+      - name: Terraform validate
+        run: terraform -chdir=iac/terraform validate
+
+      - name: OPA policy check
+        uses: open-policy-agent/opa-action@v2
+        with:
+          policy-path: iac/terraform/policies.rego
+          input-path: iac/terraform
+
+      - name: Upload OPA policy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: opa-policy-report
+          path: opa-report.json
