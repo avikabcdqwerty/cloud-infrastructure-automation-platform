@@ -1,0 +1,65 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+.env.*
+*.sqlite3
+
+# Test and coverage reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# FastAPI/uvicorn logs
+*.log
+
+# Docker artifacts
+*.pid
+*.db
+*.tar
+*.img
+*.lock
+
+# VSCode and IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfplan
+
+# Bandit and OPA reports
+bandit.json
+opa-report.json
+
+# Node/npm (if frontend added)
+node_modules/
+npm-debug.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Ignore secrets
+secrets.*
+*.pem
+*.key
+*.crt
+
+# Ignore compiled files
+dist/
+build/
+*.egg-info/
+
+# Ignore documentation build artifacts
+docs/_build/

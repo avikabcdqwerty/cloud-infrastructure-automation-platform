@@ -1,0 +1,118 @@
+# Cloud-Native Monitoring & Alerting Configuration
+# AWS CloudWatch (can be adapted for Azure Monitor or GCP Operations Suite)
+
+api_monitoring:
+  log_group: "/cloud-infra-platform/${ENVIRONMENT}/api"
+  retention_days: 30
+  metrics:
+    - name: "APIRequestCount"
+      namespace: "CloudInfra/API"
+      dimensions:
+        - Name: "Environment"
+          Value: "${ENVIRONMENT}"
+      statistic: "Sum"
+      period: 60
+      threshold: 1000
+      comparison_operator: "GreaterThanThreshold"
+      evaluation_periods: 1
+      alarm_name: "High API Request Rate"
+      alarm_description: "Triggers if API requests exceed 1000 per minute."
+      actions:
+        - notify: "cloud-team@company.com"
+        - incident_response: true
+
+    - name: "APIErrorCount"
+      namespace: "CloudInfra/API"
+      dimensions:
+        - Name: "Environment"
+          Value: "${ENVIRONMENT}"
+      statistic: "Sum"
+      period: 60
+      threshold: 10
+      comparison_operator: "GreaterThanThreshold"
+      evaluation_periods: 1
+      alarm_name: "API Error Spike"
+      alarm_description: "Triggers if error count exceeds 10 per minute."
+      actions:
+        - notify: "cloud-team@company.com"
+        - incident_response: true
+
+    - name: "Latency"
+      namespace: "CloudInfra/API"
+      dimensions:
+        - Name: "Environment"
+          Value: "${ENVIRONMENT}"
+      statistic: "Average"
+      period: 60
+      threshold: 2.0
+      comparison_operator: "GreaterThanThreshold"
+      evaluation_periods: 1
+      alarm_name: "High API Latency"
+      alarm_description: "Triggers if average latency exceeds 2 seconds."
+      actions:
+        - notify: "cloud-team@company.com"
+        - incident_response: true
+
+db_monitoring:
+  log_group: "/cloud-infra-platform/${ENVIRONMENT}/db"
+  retention_days: 30
+  metrics:
+    - name: "CPUUtilization"
+      namespace: "AWS/RDS"
+      dimensions:
+        - Name: "DBInstanceIdentifier"
+          Value: "${DB_INSTANCE_ID}"
+      statistic: "Average"
+      period: 60
+      threshold: 80
+      comparison_operator: "GreaterThanThreshold"
+      evaluation_periods: 2
+      alarm_name: "High DB CPU"
+      alarm_description: "Triggers if DB CPU utilization exceeds 80%."
+      actions:
+        - notify: "cloud-team@company.com"
+        - incident_response: true
+
+    - name: "FreeStorageSpace"
+      namespace: "AWS/RDS"
+      dimensions:
+        - Name: "DBInstanceIdentifier"
+          Value: "${DB_INSTANCE_ID}"
+      statistic: "Minimum"
+      period: 300
+      threshold: 10737418240 # 10GB in bytes
+      comparison_operator: "LessThanThreshold"
+      evaluation_periods: 1
+      alarm_name: "Low DB Storage"
+      alarm_description: "Triggers if free storage drops below 10GB."
+      actions:
+        - notify: "cloud-team@company.com"
+        - incident_response: true
+
+security_monitoring:
+  log_group: "/cloud-infra-platform/${ENVIRONMENT}/security"
+  retention_days: 90
+  alerts:
+    - name: "UnauthorizedAPIAccess"
+      pattern: "401 Unauthorized"
+      alarm_name: "Unauthorized API Access"
+      alarm_description: "Triggers on unauthorized API access attempts."
+      actions:
+        - notify: "security@company.com"
+        - incident_response: true
+
+    - name: "SecurityGroupChange"
+      pattern: "SECURITY_GROUP_MODIFIED"
+      alarm_name: "Security Group Modification"
+      alarm_description: "Triggers on any security group change."
+      actions:
+        - notify: "security@company.com"
+        - incident_response: true
+
+    - name: "IAMPolicyChange"
+      pattern: "IAM_POLICY_CHANGED"
+      alarm_name: "IAM Policy Change"
+      alarm_description: "Triggers on any IAM policy change."
+      actions:
+        - notify: "security@company.com"
+        - incident_response: true
